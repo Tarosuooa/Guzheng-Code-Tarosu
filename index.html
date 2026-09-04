@@ -252,17 +252,27 @@
 <script>
 (function(){
   const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const CHORD_ROOT_NAMES = ['C','C#/Db','D','D#/Eb','E','F','F#/Gb','G','G#/Ab','A','A#/Bb','B'];
+  const CHORD_DISPLAY_NAMES = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']; // 코드명 표기는 플랫 선호
   const PENTATONIC = [0,2,4,7,9]; // 도 레 미 솔 라
   const SOLFEGE = ['도','레','미','솔','라'];
   const STRING_COUNT = 21;
   const ROLE_LABELS = ['근음', '3음', '5음', '7음'];
 
   const CHORD_QUALITIES = [
-    { id:'major', label:'장3화음', suffix:'', intervals:[0,4,7] },
-    { id:'minor', label:'단3화음', suffix:'m', intervals:[0,3,7] },
-    { id:'dom7',  label:'속7화음(7)', suffix:'7', intervals:[0,4,7,10] },
-    { id:'maj7',  label:'장7화음(maj7)', suffix:'maj7', intervals:[0,4,7,11] },
-    { id:'min7',  label:'단7화음(m7)', suffix:'m7', intervals:[0,3,7,10] },
+    { id:'major', suffix:'',      intervals:[0,4,7] },
+    { id:'minor', suffix:'m',     intervals:[0,3,7] },
+    { id:'sus2',  suffix:'sus2',  intervals:[0,2,7] },
+    { id:'sus4',  suffix:'sus4',  intervals:[0,5,7] },
+    { id:'dim',   suffix:'dim',   intervals:[0,3,6] },
+    { id:'aug',   suffix:'aug',   intervals:[0,4,8] },
+    { id:'six',   suffix:'6',     intervals:[0,4,7,9] },
+    { id:'m6',    suffix:'m6',    intervals:[0,3,7,9] },
+    { id:'dom7',  suffix:'7',     intervals:[0,4,7,10] },
+    { id:'maj7',  suffix:'maj7',  intervals:[0,4,7,11] },
+    { id:'min7',  suffix:'m7',    intervals:[0,3,7,10] },
+    { id:'dim7',  suffix:'dim7',  intervals:[0,3,6,9] },
+    { id:'add9',  suffix:'add9',  intervals:[0,4,7,2] },
   ];
 
   function midiToLabel(midi){
@@ -290,7 +300,7 @@
   NOTE_NAMES.forEach((name, offset) => {
     const o1 = document.createElement('option'); o1.value = offset; o1.textContent = name + ' 장조';
     keySelect.appendChild(o1);
-    const o2 = document.createElement('option'); o2.value = offset; o2.textContent = name;
+    const o2 = document.createElement('option'); o2.value = offset; o2.textContent = CHORD_ROOT_NAMES[offset];
     chordRootSelect.appendChild(o2);
   });
   keySelect.value = 2; // D
@@ -302,7 +312,7 @@
 
   // 근음이 바뀔 때마다 화음 종류 드롭다운의 표기를 "Em", "C7"처럼 실제 코드명으로 갱신
   function refreshChordQualityLabels(){
-    const rootName = NOTE_NAMES[parseInt(chordRootSelect.value, 10)];
+    const rootName = CHORD_DISPLAY_NAMES[parseInt(chordRootSelect.value, 10)];
     Array.from(chordQualitySelect.options).forEach((opt) => {
       const q = CHORD_QUALITIES.find(x => x.id === opt.value);
       opt.textContent = rootName + q.suffix;
@@ -496,7 +506,7 @@
     const keyRoot = parseInt(keySelect.value, 10);
     const chordRoot = parseInt(chordRootSelect.value, 10);
     const quality = CHORD_QUALITIES.find(q => q.id === chordQualitySelect.value) || CHORD_QUALITIES[0];
-    chordNameDisplay.textContent = NOTE_NAMES[chordRoot] + quality.suffix;
+    chordNameDisplay.textContent = CHORD_DISPLAY_NAMES[chordRoot] + quality.suffix;
 
     const results = analyzeChord(keyRoot, chordRoot, quality.intervals);
     const MIDDLE_OCTAVE_GROUP = 2; // g=0(맨 위, 최저)~4(맨 아래, 최고) 중 가운데
