@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>고쟁 코드 연주 가이드</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;900&family=Noto+Sans+KR:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wood-dark:#241209;
+    --wood-mid:#3c2013;
+    --lacquer:#a13a2e;
+    --lacquer-dark:#7c2a20;
+    --gold:#c9a227;
+    --string:#e9dfc6;
+    --string-dim:#9c8f74;
+    --cream:#f2e9d4;
+    --ink:#1c120a;
+    --teal:#2fd9c4;
+    --teal-dim:#1c8c7d;
+    --press:#e0584a;
+    --press-dim:#8c3a30;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse at 30% -10%, #52301c 0%, transparent 70%),
+      repeating-linear-gradient(100deg, var(--wood-dark) 0px, var(--wood-mid) 3px, var(--wood-dark) 6px),
+      var(--wood-dark);
+    background-attachment: fixed, fixed, fixed;
+    color:var(--cream);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:36px 16px 60px;
+    overflow-x:hidden;
+  }
+
+  header{ text-align:center; margin-bottom:6px; }
+  h1{
+    font-family:'Noto Serif KR', serif; font-weight:900;
+    font-size:clamp(26px, 5.2vw, 40px); margin:0; color:var(--cream);
+    text-shadow:0 2px 0 var(--lacquer-dark), 0 4px 14px rgba(0,0,0,0.5);
+    letter-spacing:0.04em;
+  }
+  .credit{
+    text-align:center; font-size:13px; color:var(--cream); opacity:0.9; font-weight:600;
+    margin-top:8px; letter-spacing:0.03em; line-height:1.6;
+  }
+
+  .control-bar{
+    margin:24px 0 20px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+    gap:16px;
+    background:linear-gradient(180deg, #2c170c, #1c0f07);
+    border:1px solid rgba(201,162,39,0.35);
+    border-radius:18px;
+    padding:14px 26px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .control-group{ display:flex; align-items:center; gap:10px; }
+  .control-cluster{ display:flex; align-items:center; gap:16px; flex-wrap:nowrap; }
+  .control-bar label{ font-size:13px; color:var(--gold); letter-spacing:0.06em; white-space:nowrap; }
+
+  select{
+    appearance:none; background:var(--ink); color:var(--cream);
+    border:1px solid var(--gold); border-radius:8px;
+    padding:8px 34px 8px 14px; font-family:'Noto Sans KR', sans-serif;
+    font-size:14px; font-weight:600; cursor:pointer;
+    background-image:linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+    background-size: 5px 5px, 5px 5px; background-repeat:no-repeat;
+  }
+  select:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  .toggle-group{ display:flex; gap:6px; }
+  .toggle-btn{
+    background:var(--ink); color:var(--string-dim);
+    border:1px solid rgba(201,162,39,0.4); border-radius:8px;
+    padding:7px 14px; font-family:'Noto Sans KR', sans-serif;
+    font-size:13px; font-weight:600; cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .toggle-btn:hover{ color:var(--cream); border-color:var(--gold); }
+  .toggle-btn.active{ background:var(--gold); color:var(--ink); border-color:var(--gold); }
+  .toggle-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  .volume-group{ flex-direction:column; align-items:flex-start; gap:8px; }
+  .volume-row{ display:flex; align-items:center; gap:10px; }
+  .volume-presets{ display:flex; gap:5px; }
+  input[type=range]{
+    -webkit-appearance:none; appearance:none;
+    width:120px; height:4px; border-radius:2px;
+    background:linear-gradient(90deg, var(--gold), var(--string-dim));
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none;
+    width:16px; height:16px; border-radius:50%;
+    background:var(--cream); border:2px solid var(--gold);
+    cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.5);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px; height:16px; border-radius:50%;
+    background:var(--cream); border:2px solid var(--gold); cursor:pointer;
+  }
+  #volLabel{ font-size:12px; color:var(--string-dim); min-width:32px; }
+  .vol-preset-btn{
+    background:var(--ink); color:var(--string-dim);
+    border:1px solid rgba(201,162,39,0.35); border-radius:6px;
+    padding:3px 9px; font-family:'Noto Sans KR', sans-serif;
+    font-size:11px; font-weight:600; cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .vol-preset-btn:hover{ color:var(--cream); border-color:var(--gold); }
+  .vol-preset-btn:active{ background:var(--gold); color:var(--ink); border-color:var(--gold); }
+  .vol-preset-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  .chord-name-display{
+    font-family:'Noto Serif KR', serif; font-weight:900; font-size:22px;
+    color:var(--gold); min-width:60px; text-align:center;
+  }
+
+  .instrument{
+    position:relative;
+    width:min(680px, 96vw);
+    background:linear-gradient(180deg, #4a2a17, #2f1a0e 70%, #241209);
+    border-radius:20px;
+    padding:30px 32px 36px;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.06),
+      inset 0 -30px 60px rgba(0,0,0,0.45),
+      0 30px 60px rgba(0,0,0,0.55);
+    border:1px solid rgba(0,0,0,0.5);
+  }
+  .instrument::before{
+    content:""; position:absolute; inset:12px;
+    border:1px solid rgba(201,162,39,0.18); border-radius:14px; pointer-events:none;
+  }
+
+  .strings{ display:flex; flex-direction:column; gap:8px; }
+
+  .string-row{
+    display:flex; align-items:center; gap:16px;
+    width:100%; height:24px;
+    border-radius:8px; cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .string-row:hover .wire{ filter:brightness(1.25); }
+  .string-row.hit{ background:rgba(47,217,196,0.10); }
+  .string-row.press{ background:rgba(224,88,74,0.12); }
+  .string-row.plucking .wire{ animation:pluck 0.4s ease-out; }
+  @keyframes pluck{
+    0%{ transform: scaleY(1); }
+    25%{ transform: scaleY(2.4); }
+    55%{ transform: scaleY(1.6); }
+    100%{ transform: scaleY(1); }
+  }
+
+  .string-row .idx{
+    width:32px; flex-shrink:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    line-height:1;
+  }
+  .string-row .idx-num{ font-size:14px; color:var(--string-dim); font-weight:600; }
+  .string-row .idx-dots{ font-size:7px; letter-spacing:1px; color:var(--string-dim); height:7px; line-height:7px; }
+
+  .string-row .wire{
+    height:5px; border-radius:3px;
+    background:linear-gradient(90deg, var(--string), var(--string-dim));
+    transform-origin:left center;
+  }
+  .string-row.hit .wire{ background:linear-gradient(90deg, #baf5ec, var(--teal)); }
+  .string-row.press .wire{ background:linear-gradient(90deg, #f2a89c, var(--press)); }
+
+  .string-row .label{
+    display:flex; align-items:baseline; gap:8px; flex-shrink:0; white-space:nowrap;
+  }
+  .string-row .solfege{
+    font-family:'Noto Serif KR', serif; font-size:18px; font-weight:600; color:var(--gold);
+    width:26px;
+  }
+  .string-row .note{ font-size:14px; color:var(--string-dim); font-weight:600; }
+  .string-row.hit .note{ color:var(--teal); font-weight:800; }
+  .string-row .press-note{ font-size:12.5px; color:var(--press); font-weight:700; }
+  .string-row .press-tag{
+    font-size:10.5px; color:var(--cream); background:var(--press-dim);
+    padding:1px 7px; border-radius:8px; font-weight:700;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>고쟁 코드 연주 가이드</h1>
+  <div class="credit">연주하고 싶은 코드를 고르면, 어떤 현을 뜯어야 하는지 알려드립니다.</div>
+  <div class="credit">오음계에 없는 음은 <b>按音(안음)</b>으로 어느 현을 얼마나 눌러야 하는지 함께 표시돼요.</div>
+</header>
+
+<div class="control-bar">
+  <div class="control-group">
+    <label for="keySelect">장조</label>
+    <select id="keySelect"></select>
+  </div>
+  <div class="control-group">
+    <label for="chordRootSelect">코드</label>
+    <select id="chordRootSelect"></select>
+    <select id="chordQualitySelect"></select>
+  </div>
+  <div class="chord-name-display" id="chordNameDisplay">D</div>
+  <button type="button" class="toggle-btn" id="btnPlayChord" title="스페이스바로도 재생할 수 있어요">▶ 재생</button>
+  <div class="control-cluster">
+    <div class="control-group">
+      <label>현 수</label>
+      <div class="toggle-group">
+        <button type="button" id="btn21" class="toggle-btn active">21현</button>
+        <button type="button" id="btn14" class="toggle-btn">14현</button>
+      </div>
+    </div>
+    <div class="control-group volume-group">
+      <div class="volume-row">
+        <label for="volume">볼륨</label>
+        <input type="range" id="volume" min="0" max="100" value="15">
+        <span id="volLabel">15%</span>
+      </div>
+      <div class="volume-presets">
+        <button type="button" class="vol-preset-btn" data-vol="15">15%</button>
+        <button type="button" class="vol-preset-btn" data-vol="50">50%</button>
+        <button type="button" class="vol-preset-btn" data-vol="70">70%</button>
+        <button type="button" class="vol-preset-btn" data-vol="100">100%</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="instrument">
+  <div class="strings" id="strings"></div>
+</div>
+
+<script>
+(function(){
+  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const PENTATONIC = [0,2,4,7,9]; // 도 레 미 솔 라
+  const SOLFEGE = ['도','레','미','솔','라'];
+  const STRING_COUNT = 21;
+  const ROLE_LABELS = ['근음', '3음', '5음', '7음'];
+
+  const CHORD_QUALITIES = [
+    { id:'major', label:'장3화음', suffix:'', intervals:[0,4,7] },
+    { id:'minor', label:'단3화음', suffix:'m', intervals:[0,3,7] },
+    { id:'dom7',  label:'속7화음(7)', suffix:'7', intervals:[0,4,7,10] },
+    { id:'maj7',  label:'장7화음(maj7)', suffix:'maj7', intervals:[0,4,7,11] },
+    { id:'min7',  label:'단7화음(m7)', suffix:'m7', intervals:[0,3,7,10] },
+  ];
+
+  function midiToLabel(midi){
+    const pc = ((midi % 12) + 12) % 12;
+    const oct = Math.floor(midi / 12) - 1;
+    return NOTE_NAMES[pc] + oct;
+  }
+  function midiToFreq(midi){ return 440 * Math.pow(2, (midi - 69) / 12); }
+
+  function buildTuning(rootOffset){
+    const tonicMidiOct2 = 36 + rootOffset;
+    const midis = [];
+    for(let i = 1; i <= STRING_COUNT; i++){
+      const degree = (i - 1) % 5;
+      const octAdd = Math.floor((i - 1) / 5);
+      midis.push(tonicMidiOct2 + PENTATONIC[degree] + octAdd * 12);
+    }
+    return midis;
+  }
+
+  // --- 셀렉트 박스 구성 ---
+  const keySelect = document.getElementById('keySelect');
+  const chordRootSelect = document.getElementById('chordRootSelect');
+  const chordQualitySelect = document.getElementById('chordQualitySelect');
+  NOTE_NAMES.forEach((name, offset) => {
+    const o1 = document.createElement('option'); o1.value = offset; o1.textContent = name + ' 장조';
+    keySelect.appendChild(o1);
+    const o2 = document.createElement('option'); o2.value = offset; o2.textContent = name;
+    chordRootSelect.appendChild(o2);
+  });
+  keySelect.value = 2; // D
+  chordRootSelect.value = 2; // D
+  CHORD_QUALITIES.forEach((q) => {
+    const o = document.createElement('option'); o.value = q.id;
+    chordQualitySelect.appendChild(o);
+  });
+
+  // 근음이 바뀔 때마다 화음 종류 드롭다운의 표기를 "Em", "C7"처럼 실제 코드명으로 갱신
+  function refreshChordQualityLabels(){
+    const rootName = NOTE_NAMES[parseInt(chordRootSelect.value, 10)];
+    Array.from(chordQualitySelect.options).forEach((opt) => {
+      const q = CHORD_QUALITIES.find(x => x.id === opt.value);
+      opt.textContent = rootName + q.suffix;
+    });
+  }
+  refreshChordQualityLabels();
+  chordRootSelect.addEventListener('change', refreshChordQualityLabels);
+
+  // --- 오디오 엔진 (간단한 피아노풍 합성) ---
+  const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+  let masterGain = null;
+  const bufferCache = {};
+  function getAudioCtx(){
+    if(!audioCtx){
+      audioCtx = new AudioCtxClass();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = parseInt(document.getElementById('volume').value, 10) / 100;
+      masterGain.connect(audioCtx.destination);
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+  const HARMONIC_AMPS = [1, 0.55, 0.30, 0.17, 0.10, 0.06];
+  function pianoBuffer(ctx, freq){
+    const key = Math.round(freq * 100);
+    if(bufferCache[key]) return bufferCache[key];
+    const sampleRate = ctx.sampleRate;
+    const tauBase = clamp(60 / freq, 0.06, 0.22);
+    const duration = clamp(tauBase * 1.8, 0.12, 0.35);
+    const totalSamples = Math.floor(duration * sampleRate);
+    const out = new Float32Array(totalSamples);
+    const nyquistGuard = sampleRate * 0.45;
+    for(let h = 1; h <= HARMONIC_AMPS.length; h++){
+      const fh = freq * h;
+      if(fh > nyquistGuard) break;
+      const amp = HARMONIC_AMPS[h - 1];
+      const tauH = tauBase / (1 + (h - 1) * 0.32);
+      const w = 2 * Math.PI * fh / sampleRate;
+      const phase = Math.random() * Math.PI * 2;
+      for(let i = 0; i < totalSamples; i++){
+        out[i] += amp * Math.sin(w * i + phase) * Math.exp(-i / (tauH * sampleRate));
+      }
+    }
+    const hammerSamples = Math.min(totalSamples, Math.floor(sampleRate * 0.018));
+    for(let i = 0; i < hammerSamples; i++){
+      out[i] += (Math.random() * 2 - 1) * 0.2 * Math.exp(-i / (hammerSamples * 0.3));
+    }
+    const attackSamples = Math.max(1, Math.floor(sampleRate * 0.002));
+    for(let i = 0; i < attackSamples; i++) out[i] *= i / attackSamples;
+    const fadeSamples = Math.max(1, Math.floor(totalSamples * 0.08));
+    const fadeStart = totalSamples - fadeSamples;
+    let peak = 0;
+    for(let i = 0; i < totalSamples; i++){
+      const tailGain = i >= fadeStart ? (totalSamples - i) / fadeSamples : 1;
+      out[i] *= tailGain;
+      const m = Math.abs(out[i]);
+      if(m > peak) peak = m;
+    }
+    const norm = peak > 0 ? 0.9 / peak : 1;
+    for(let i = 0; i < totalSamples; i++) out[i] *= norm;
+    const buffer = ctx.createBuffer(1, totalSamples, sampleRate);
+    buffer.copyToChannel(out, 0);
+    bufferCache[key] = buffer;
+    return buffer;
+  }
+  function playNote(freq){
+    const ctx = getAudioCtx();
+    const buffer = pianoBuffer(ctx, freq);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const highpass = ctx.createBiquadFilter();
+    highpass.type = 'highpass'; highpass.frequency.value = 45;
+    const smooth = ctx.createBiquadFilter();
+    smooth.type = 'lowpass'; smooth.frequency.value = 8500; smooth.Q.value = 0.6;
+    source.connect(highpass); highpass.connect(smooth); smooth.connect(masterGain);
+    source.start();
+  }
+
+  // --- Volume control ---
+  const volumeSlider = document.getElementById('volume');
+  const volLabel = document.getElementById('volLabel');
+  function setVolume(v){
+    volumeSlider.value = v;
+    volLabel.textContent = v + '%';
+    if(masterGain) masterGain.gain.value = v / 100;
+  }
+  volumeSlider.addEventListener('input', () => setVolume(parseInt(volumeSlider.value, 10)));
+  document.querySelectorAll('.vol-preset-btn').forEach((btn) => {
+    btn.addEventListener('click', () => setVolume(parseInt(btn.dataset.vol, 10)));
+  });
+
+  // --- 코드 분석: 오음계에 없는 음은 안음(按音)으로 눌러야 할 현/양을 계산 ---
+  function analyzeChord(keyRoot, chordRoot, intervals){
+    const keyPC = PENTATONIC.map(iv => (keyRoot + iv) % 12);
+    return intervals.map((iv, i) => {
+      const targetPC = (chordRoot + iv) % 12;
+      const idx = keyPC.indexOf(targetPC);
+      if(idx !== -1) return { role: ROLE_LABELS[i], targetPC, available:true, degreeIdx: idx };
+      let best = null;
+      keyPC.forEach((pc, degIdx) => {
+        const dist = ((targetPC - pc) % 12 + 12) % 12;
+        if(!best || dist < best.dist) best = { pc, degIdx, dist };
+      });
+      return { role: ROLE_LABELS[i], targetPC, available:false, pressFrom: best };
+    });
+  }
+
+  function widthFor(i){
+    const maxW = 100, minW = 34;
+    const t = i / (STRING_COUNT - 1);
+    return maxW - t * (maxW - minW);
+  }
+
+  const stringsEl = document.getElementById('strings');
+  const rows = [];
+  for(let i = 0; i < STRING_COUNT; i++){
+    const row = document.createElement('div');
+    row.className = 'string-row';
+
+    const idx = document.createElement('div');
+    idx.className = 'idx';
+    const dotsAbove = document.createElement('div'); dotsAbove.className = 'idx-dots';
+    const num = document.createElement('div'); num.className = 'idx-num';
+    const dotsBelow = document.createElement('div'); dotsBelow.className = 'idx-dots';
+    idx.appendChild(dotsAbove); idx.appendChild(num); idx.appendChild(dotsBelow);
+
+    const wire = document.createElement('div');
+    wire.className = 'wire';
+    wire.style.width = widthFor(i) + '%';
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    const solfege = document.createElement('span'); solfege.className = 'solfege';
+    const note = document.createElement('span'); note.className = 'note';
+    const pressTag = document.createElement('span'); pressTag.className = 'press-tag'; pressTag.style.display = 'none';
+    const pressNote = document.createElement('span'); pressNote.className = 'press-note';
+    label.appendChild(solfege); label.appendChild(note); label.appendChild(pressTag); label.appendChild(pressNote);
+
+    row.appendChild(idx); row.appendChild(wire); row.appendChild(label);
+    stringsEl.appendChild(row);
+
+    const rowData = { row, wire, solfege, note, pressTag, pressNote, num, dotsAbove, dotsBelow, targetMidi: null };
+    rows.push(rowData);
+
+    row.addEventListener('click', () => {
+      if(rowData.targetMidi == null) return;
+      playNote(midiToFreq(rowData.targetMidi));
+      row.classList.remove('plucking');
+      void row.offsetWidth;
+      row.classList.add('plucking');
+    });
+  }
+  rows.forEach(({row}) => row.addEventListener('animationend', () => row.classList.remove('plucking')));
+
+  const DEGREE_NUMBERS = [1, 2, 3, 5, 6];
+  function updateIdxDisplay(){
+    rows.forEach((el, i) => {
+      const degree = i % 5;
+      const g = Math.floor(i / 5);
+      const belowCount = Math.max(0, 2 - g);
+      const aboveCount = Math.max(0, g - 2);
+      el.num.textContent = DEGREE_NUMBERS[degree];
+      el.dotsBelow.textContent = '•'.repeat(belowCount);
+      el.dotsAbove.textContent = '•'.repeat(aboveCount);
+      el.dotsBelow.style.visibility = belowCount ? 'visible' : 'hidden';
+      el.dotsAbove.style.visibility = aboveCount ? 'visible' : 'hidden';
+    });
+  }
+  updateIdxDisplay();
+
+  // --- 21현 / 14현 토글 ---
+  const FOURTEEN_START = 7;
+  let stringMode = 21;
+  const btn21 = document.getElementById('btn21');
+  const btn14 = document.getElementById('btn14');
+  function applyStringMode(){
+    rows.forEach(({row}, i) => {
+      row.style.display = (stringMode === 14 && i < FOURTEEN_START) ? 'none' : 'flex';
+    });
+    recompute();
+  }
+  btn21.addEventListener('click', () => { stringMode = 21; btn21.classList.add('active'); btn14.classList.remove('active'); applyStringMode(); });
+  btn14.addEventListener('click', () => { stringMode = 14; btn14.classList.add('active'); btn21.classList.remove('active'); applyStringMode(); });
+
+  const chordNameDisplay = document.getElementById('chordNameDisplay');
+  let chordPlaybackMidis = [];
+
+  function recompute(){
+    const keyRoot = parseInt(keySelect.value, 10);
+    const chordRoot = parseInt(chordRootSelect.value, 10);
+    const quality = CHORD_QUALITIES.find(q => q.id === chordQualitySelect.value) || CHORD_QUALITIES[0];
+    chordNameDisplay.textContent = NOTE_NAMES[chordRoot] + quality.suffix;
+
+    const results = analyzeChord(keyRoot, chordRoot, quality.intervals);
+    const MIDDLE_OCTAVE_GROUP = 2; // g=0(맨 위, 최저)~4(맨 아래, 최고) 중 가운데
+
+    // 모든 현을 일단 기본 상태로 리셋
+    rows.forEach((el, i) => {
+      const degree = i % 5;
+      const octAdd = Math.floor(i / 5);
+      const midi = 36 + keyRoot + PENTATONIC[degree] + octAdd * 12;
+      el.solfege.textContent = SOLFEGE[degree];
+      el.note.textContent = midiToLabel(midi);
+      el.row.classList.remove('hit', 'press');
+      el.pressTag.style.display = 'none';
+      el.pressNote.textContent = '';
+      el.targetMidi = midi; // 기본값: 그냥 그 현의 원래 음을 재생
+    });
+
+    chordPlaybackMidis = [];
+
+    results.forEach((r) => {
+      if(r.available){
+        // 중간 음역대(가운데 옥타브)에 있는 현 하나만 색으로 표시
+        const i = MIDDLE_OCTAVE_GROUP * 5 + r.degreeIdx;
+        rows[i].row.classList.add('hit');
+        chordPlaybackMidis.push(rows[i].targetMidi);
+      } else {
+        const i = MIDDLE_OCTAVE_GROUP * 5 + r.pressFrom.degIdx;
+        const pressedMidi = rows[i].targetMidi + r.pressFrom.dist;
+        rows[i].row.classList.add('press');
+        rows[i].pressTag.style.display = 'inline';
+        rows[i].pressTag.textContent = r.pressFrom.dist === 1 ? '반음↑' : r.pressFrom.dist === 2 ? '온음↑' : `${r.pressFrom.dist}반음↑`;
+        rows[i].pressNote.textContent = `→ ${NOTE_NAMES[r.targetPC]}`;
+        rows[i].targetMidi = pressedMidi; // 클릭하면 눌러서 만든 최종 음이 재생됨
+        chordPlaybackMidis.push(pressedMidi);
+      }
+    });
+  }
+
+  keySelect.addEventListener('change', recompute);
+  chordRootSelect.addEventListener('change', recompute);
+  chordQualitySelect.addEventListener('change', recompute);
+  recompute();
+
+  // --- 코드 재생 (재생 버튼 / 스페이스바) ---
+  function playChordOnce(){
+    chordPlaybackMidis.forEach((midi) => playNote(midiToFreq(midi)));
+    rows.forEach(({row}) => {
+      if(row.classList.contains('hit') || row.classList.contains('press')){
+        row.classList.remove('plucking');
+        void row.offsetWidth;
+        row.classList.add('plucking');
+      }
+    });
+  }
+  document.getElementById('btnPlayChord').addEventListener('click', playChordOnce);
+  document.addEventListener('keydown', (e) => {
+    if(e.code !== 'Space') return;
+    const active = document.activeElement;
+    const isFormControl = active && (active.tagName === 'SELECT' || active.tagName === 'INPUT' || active.tagName === 'BUTTON');
+    if(isFormControl) return;
+    e.preventDefault();
+    playChordOnce();
+  });
+})();
+</script>
+</body>
+</html>
