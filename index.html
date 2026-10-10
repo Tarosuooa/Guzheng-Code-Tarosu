@@ -667,19 +667,19 @@
   </header>
 
   <div class="mode-switch">
-    <button class="mode-btn" id="tab-play" data-active="true">
-      <span class="m-title">화음 재생 모드</span>
+    <button class="mode-btn" id="tab-recommend" data-active="true">
+      <span class="m-title">화음 추천 모드</span>
     </button>
     <button class="mode-btn" id="tab-detect" data-active="false">
       <span class="m-title">건반 코드 찾기</span>
     </button>
-    <button class="mode-btn" id="tab-recommend" data-active="false">
-      <span class="m-title">화음 추천 모드</span>
+    <button class="mode-btn" id="tab-play" data-active="false">
+      <span class="m-title">화음 재생 모드</span>
     </button>
   </div>
 
   <!-- PLAY MODE PANEL -->
-  <section class="panel" id="play-panel">
+  <section class="panel" id="play-panel" hidden>
     <h2>1. 근음 선택</h2>
     <div class="root-grid" id="root-grid"></div>
 
@@ -693,11 +693,11 @@
   </section>
 
   <!-- RECOMMEND MODE PANEL -->
-  <section class="panel" id="recommend-panel" hidden>
+  <section class="panel" id="recommend-panel">
     <h2>표시 방식</h2>
     <div class="view-toggle" id="view-toggle">
-      <button class="octave-btn" data-view="piano" data-active="true">피아노</button>
-      <button class="octave-btn" data-view="launchpad" data-active="false">런치패드</button>
+      <button class="octave-btn" data-view="launchpad" data-active="true">런치패드</button>
+      <button class="octave-btn" data-view="piano" data-active="false">피아노</button>
     </div>
 
     <h2>재생 옥타브 기준</h2>
@@ -705,8 +705,8 @@
     <div class="octave-grid" id="octave-grid-rec"></div>
 
     <h2>선택한 음 함께 재생</h2>
-    <p class="sub-label">켜두면 추천 화음을 누를 때 지금 선택 중인 건반 음도 함께 울려요</p>
-    <button class="toggle-btn" id="anchor-toggle" data-active="false">OFF</button>
+    <p class="sub-label">켜두면 추천 화음을 누를 때 지금 선택 중인 음도 함께 울려요</p>
+    <button class="toggle-btn" id="anchor-toggle" data-active="true">ON</button>
   </section>
 
   <!-- VOLUME -->
@@ -718,7 +718,7 @@
 
   <!-- RESULT CARD -->
   <div class="result-card">
-    <button class="reset-btn-corner" id="reset-btn" hidden>↺ 선택 초기화</button>
+    <button class="reset-btn-corner" id="reset-btn">↺ 선택 해제</button>
     <div class="result-left">
       <p class="result-eyebrow" id="result-eyebrow">선택한 화음</p>
       <p class="chord-name" id="chord-name">C</p>
@@ -730,13 +730,13 @@
   </div>
 
   <!-- PIANO -->
-  <div class="piano-wrap">
+  <div class="piano-wrap" hidden>
     <p class="piano-frame-label"><span id="piano-range-start">C2</span><span>화음공방 · 88건반 축소 모델</span><span id="piano-range-end">C8</span></p>
     <div id="piano"></div>
   </div>
 
-  <!-- LAUNCHPAD (recommend mode only) -->
-  <div class="launchpad-wrap" id="launchpad-wrap" hidden>
+  <!-- LAUNCHPAD (recommend mode only; the default view) -->
+  <div class="launchpad-wrap" id="launchpad-wrap">
     <p class="piano-frame-label"><span>C1</span><span>런치패드 8×8 · user1 Mode Scale</span><span>D#6</span></p>
     <div class="lp-grid" id="lp-grid"></div>
     <div class="lp-legend">
@@ -747,8 +747,8 @@
   </div>
 
   <!-- RECOMMEND RESULTS -->
-  <div class="recommend-list" id="recommend-list" hidden>
-    <p class="rec-placeholder" id="rec-placeholder">건반에서 음을 하나 클릭하면 어울리는 화음을 추천해드려요</p>
+  <div class="recommend-list" id="recommend-list">
+    <p class="rec-placeholder" id="rec-placeholder">패드에서 음을 하나 클릭하면 어울리는 화음을 추천해드려요</p>
     <div id="rec-results" hidden>
       <p class="rec-header" id="rec-root-header">C를 근음으로 하는 화음</p>
       <div class="rec-group" id="rec-root-list"></div>
@@ -764,7 +764,7 @@
     </div>
   </div>
 
-  <footer>건반을 클릭하면 소리가 재생됩니다 · 스페이스바로 현재 화음(또는 감지된 화음)을 재생할 수 있어요</footer>
+  <footer>건반·패드를 클릭하면 소리가 재생됩니다 · 스페이스바로 현재 화음(또는 감지된 화음)을 재생할 수 있어요</footer>
 </div>
 
 <script>
@@ -928,18 +928,18 @@
   }
 
   /* ---------------- State ---------------- */
-  let mode = 'play'; // 'play' | 'detect' | 'recommend'
+  let mode = 'recommend'; // 'play' | 'detect' | 'recommend' (the site opens in recommend mode)
   let currentRootPc = 0;
   let currentOctave = 4; // octave number for the root note in Play mode (C3, C4, ...)
-  let currentRecOctave = 4; // octave used to play back recommended chords
+  let currentRecOctave = 3; // octave used to play back recommended chords (default C3)
   let currentFormulaId = 'major';
   let currentCategory = 'triad';
   let currentPlayNotes = [];
   const selectedDetectMidis = new Set();
   let selectedRecommendMidi = null;
   let chordHighlightMidis = []; // notes of the recommended chord currently shown in blue
-  let recView = 'piano'; // 'piano' | 'launchpad' (recommend mode only)
-  let includeAnchorNote = false; // when true, playing a recommended chord also plays the anchor note
+  let recView = 'launchpad'; // 'piano' | 'launchpad' (recommend mode only; Launchpad is the default)
+  let includeAnchorNote = true; // when true, playing a recommended chord also plays the anchor note (default ON)
 
   function handleKeyClick(midi, el){
     if(mode === 'play'){
@@ -1433,11 +1433,18 @@
     pianoWrapEl.hidden = showPad;
     launchpadWrapEl.hidden = !showPad;
     if(mode === 'recommend' && !showPad){
-      // coming back to the piano: bring the relevant keys into view
-      const target = chordHighlightMidis.length ? chordHighlightMidis[0] : selectedRecommendMidi;
-      if(target != null) scrollPianoToMidi(target);
+      // showing the piano: bring the relevant keys into view (middle C if nothing is selected yet)
+      const target = chordHighlightMidis.length ? chordHighlightMidis[0]
+                   : (selectedRecommendMidi != null ? selectedRecommendMidi : 60);
+      scrollPianoToMidi(target);
+      pianoCentered = true;
+    } else if(!showPad && !pianoCentered){
+      // first time the piano appears outside recommend mode (e.g. 코드 찾기): start near middle C
+      scrollPianoToMidi(60);
+      pianoCentered = true;
     }
   }
+  let pianoCentered = false;
 
   /* ---------------- Mode switching ---------------- */
   const tabPlay = document.getElementById('tab-play');
@@ -1510,6 +1517,7 @@
 
   // Piano <-> Launchpad switch (recommend mode)
   const viewToggleEl = document.getElementById('view-toggle');
+  Array.from(viewToggleEl.children).forEach(b=> b.dataset.active = (b.dataset.view === recView) ? 'true' : 'false');
   Array.from(viewToggleEl.children).forEach(btn=>{
     btn.addEventListener('click', ()=>{
       recView = btn.dataset.view;
@@ -1520,6 +1528,8 @@
   });
 
   const anchorToggleBtn = document.getElementById('anchor-toggle');
+  anchorToggleBtn.dataset.active = includeAnchorNote ? 'true' : 'false';
+  anchorToggleBtn.textContent = includeAnchorNote ? 'ON' : 'OFF';
   anchorToggleBtn.addEventListener('click', ()=>{
     includeAnchorNote = !includeAnchorNote;
     anchorToggleBtn.dataset.active = includeAnchorNote ? 'true' : 'false';
@@ -1562,7 +1572,8 @@
   buildPiano();
   buildLaunchpad();
   renderTypeGrid();
-  updatePlayChordDisplay();
+  setMode('recommend');      // first screen = 화음 추천 모드
+  scrollPianoToMidi(60);     // start the piano around middle C (helpful on narrow screens)
 })();
 </script>
 </body>
